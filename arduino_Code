@@ -9,6 +9,8 @@ const int servoPin = 5;
 long duration;
 int distance;
 
+bool at115 = false;   // track current state
+
 void setup() {
   Serial.begin(9600);
 
@@ -16,7 +18,7 @@ void setup() {
   pinMode(echoPin, INPUT);
 
   myServo.attach(servoPin);
-  myServo.write(55); // start position
+  myServo.write(55); // start at 55°
 }
 
 int getDistance() {
@@ -37,12 +39,17 @@ void loop() {
   int d = getDistance();
   Serial.println(d);
 
-  if (d > 0 && d < 20) {   // object detected within 20 cm
-    delay(2500);           // wait 2.5 seconds
+  bool objectDetected = (d > 0 && d < 20);
+
+  if (objectDetected && !at115) {
+    delay(2500);             // wait before action
     myServo.write(115);
-    delay(500);
-  } else {
+    at115 = true;
+  }
+
+  if (!objectDetected && at115) {
     myServo.write(55);
+    at115 = false;
   }
 
   delay(100);
