@@ -1,0 +1,49 @@
+#include <Servo.h>
+
+Servo myServo;
+
+const int trigPin = 8;
+const int echoPin = 9;
+const int servoPin = 5;
+
+long duration;
+int distance;
+
+void setup() {
+  Serial.begin(9600);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+
+  myServo.attach(servoPin);
+  myServo.write(55); // start position
+}
+
+int getDistance() {
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration * 0.034 / 2; // convert to cm
+
+  return distance;
+}
+
+void loop() {
+  int d = getDistance();
+  Serial.println(d);
+
+  if (d > 0 && d < 20) {   // object detected within 20 cm
+    delay(2500);           // wait 2.5 seconds
+    myServo.write(115);
+    delay(500);
+  } else {
+    myServo.write(55);
+  }
+
+  delay(100);
+}
