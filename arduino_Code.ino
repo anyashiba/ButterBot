@@ -21,7 +21,7 @@ void setup() {
   pinMode(ledPin, OUTPUT);
 
   myServo.attach(servoPin);
-  myServo.write(55);
+  myServo.write(115);
 
   digitalWrite(ledPin, LOW);
 }
@@ -41,16 +41,16 @@ int getDistance() {
 
 void doTantrum() {
   for (int i = 0; i < 10; i++) {
-    myServo.write(55);
+    myServo.write(115);
     digitalWrite(ledPin, HIGH);
     delay(100);
 
-    myServo.write(115);
+    myServo.write(55);
     digitalWrite(ledPin, LOW);
     delay(100);
   }
   tantrum = false;
-  myServo.write(55);
+  myServo.write(115);
 }
 
 void loop() {
@@ -74,15 +74,20 @@ void loop() {
   // LED control
   digitalWrite(ledPin, objectDetected ? HIGH : LOW);
 
-  // Servo control
+  // Servo control (SLOW 115 → 55 movement)
   if (objectDetected && !at115) {
-    delay(2500);
-    myServo.write(115);
+    delay(1000);   // wait before lifting
+
+    for (int pos = 115; pos >= 55; pos--) {
+      myServo.write(pos);
+      delay(15);   // <-- change this to slow it more
+    }
+
     at115 = true;
   }
 
   if (!objectDetected && at115) {
-    myServo.write(55);
+    myServo.write(115);
     at115 = false;
   }
 
