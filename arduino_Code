@@ -5,20 +5,24 @@ Servo myServo;
 const int trigPin = 8;
 const int echoPin = 9;
 const int servoPin = 5;
+const int ledPin  = 6;
 
 long duration;
 int distance;
 
-bool at115 = false;   // track current state
+bool at115 = false;
 
 void setup() {
   Serial.begin(9600);
 
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
+  pinMode(ledPin, OUTPUT);
 
   myServo.attach(servoPin);
-  myServo.write(55); // start at 55°
+  myServo.write(55); // start position
+
+  digitalWrite(ledPin, LOW); // LED off initially
 }
 
 int getDistance() {
@@ -30,7 +34,7 @@ int getDistance() {
   digitalWrite(trigPin, LOW);
 
   duration = pulseIn(echoPin, HIGH);
-  distance = duration * 0.034 / 2; // convert to cm
+  distance = duration * 0.034 / 2; // cm
 
   return distance;
 }
@@ -41,8 +45,14 @@ void loop() {
 
   bool objectDetected = (d > 0 && d < 20);
 
+  if (objectDetected) {
+    digitalWrite(ledPin, HIGH);  // LED on immediately
+  } else {
+    digitalWrite(ledPin, LOW);   // LED off when object gone
+  }
+
   if (objectDetected && !at115) {
-    delay(2500);             // wait before action
+    delay(2500);        // wait before servo movement
     myServo.write(115);
     at115 = true;
   }
